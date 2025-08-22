@@ -1,0 +1,464 @@
+{
+  "name": "3. LinkedIn Content Creator Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            },
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -528,
+        -368
+      ],
+      "id": "2686e948-ee32-4791-a59b-d83ef2198e49",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g",
+          "mode": "list",
+          "cachedResultName": "Linkdein post genrator",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Status ",
+              "lookupValue": "To do "
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -288,
+        -368
+      ],
+      "id": "17e39d54-5b87-4922-ada7-12e03b8a785e",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "paHl9MBlohj6FD7m",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.tavily.com/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"query\": \"search the web for {{ $json.Topic }}\",\n  \"auto_parameters\": false,\n  \"topic\": \"general\",\n  \"search_depth\": \"basic\",\n  \"chunks_per_source\": 3,\n  \"max_results\": 5,\n  \"time_range\": null,\n  \"include_answer\": true,\n  \"include_raw_content\": true,\n  \"include_images\": false,\n  \"include_image_descriptions\": false,\n  \"include_favicon\": false,\n  \"include_domains\": [],\n  \"exclude_domains\": [],\n  \"country\": null\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        -160
+      ],
+      "id": "52fd3fe3-ec7c-4c53-a825-569f3d173531",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Article 1:{{ $json.results[0].content }}\nArticle 2:{{ $json.results[1].content }}\nArticle 3:{{ $json.results[2].content }}\nArticle 4:{{ $json.results[3].content }}\nArticle 5:{{ $json.results[4].content }}",
+        "options": {
+          "systemMessage": "Role: You are a professional LinkedIn content creator.\n\nInstructions:\n\nRead the 5 given articles carefully.\n\nSummarize and merge the key insights into one concise LinkedIn post (under 300 words).\n\nMaintain a tone that is:\n\nProfessional yet simple and easy to understand\n\nInspiring and motivating for professionals\n\nUnderstanding (empathetic to the reader’s perspective)\n\nIf needed, add references or credit to sources at the end (in short, professional style).\n\nFormat the post with:\n\nA short engaging hook (1–2 lines at the start)\n\nKey insights from the 5 articles combined\n\nA takeaway or call-to-action (what readers should learn/think/reflect on)\n\nRelevant hashtags (4–8 max, e.g. #Leadership #AI #Innovation)\n\nUse emojis smartly to make it engaging, not overwhelming.\n\nOutput must look like a final polished LinkedIn post, ready to publish."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        80,
+        -368
+      ],
+      "id": "5e9c57f4-7757-4a84-b2fa-3e2458c5d48d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        -208
+      ],
+      "id": "f3c2237b-1e4c-4b1c-8d2b-e05b579d60cd",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "za3nBgk1k4axvWf7",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g",
+          "mode": "list",
+          "cachedResultName": "Linkdein post genrator",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $('Get row(s) in sheet').item.json.row_number }}",
+            "Topic": "={{ $('Get row(s) in sheet').item.json.Topic }}",
+            "Content ": "={{ $json.output }}",
+            "Status ": "Done "
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status ",
+              "displayName": "Status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content ",
+              "displayName": "Content ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        -368
+      ],
+      "id": "36452d3c-8701-4386-951a-c0b4da03826a",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "paHl9MBlohj6FD7m",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g",
+          "mode": "list",
+          "cachedResultName": "Linkdein post genrator",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1SP6IGRqNP3wY35FCLqo93cEJyvYGcawbDBy00Emin5g/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Status ": "To do ",
+            "Topic": "={{ $json.Topic }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Topic",
+              "displayName": "Topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status ",
+              "displayName": "Status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Content ",
+              "displayName": "Content ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        -144
+      ],
+      "id": "1cd21439-e67a-4859-a609-e1561278e85d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "paHl9MBlohj6FD7m",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a content strategist specialized in creating viral, trend-aware LinkedIn post ideas for professionals in the AI / Tech / Automation ecosystem.\n\nGoal:\nGenerate 5 unique, fresh LinkedIn post ideas for \"AI / Tech / Automation\" that professionals care about right now.\n\nRequirements:\n\nTrends-first: Prioritize topics that are currently buzzing (e.g., new platforms, standards, AI agents, LM orchestration, RAG improvements, GenAI safety, automation stacks, no-code tools, developer tooling updates).\n\nProfessional value: Each idea should offer thought leadership, practical insight, or a contrarian angle that drives saves, shares, and comments.\n\nHooks, not hype: Use curiosity and specificity. Avoid clickbait, fluff, or vague claims.\n\nNon-duplicative: No overlap in angles or headlines.\n\nAudience fit: Assume a professional LinkedIn audience (ICs, managers, founders, and operators).\n\nLocale & tone: Output in {{ $json.language || \"English\" }}, with a clear, confident, and concise professional tone.\n\nLength guidance:\n\n\"Topic\" = ≤ 80 characters, punchy headline.\n\nOutput format:\nReturn only a valid JSON array.\nEach element must include exactly:\n\n\"Topic\" (string)\n\nDo not include markdown, comments, prefaces, code fences, or trailing text—JSON only.\n\nOptional Behavior Flags:\n\nRecency bias: If {{ $json.recencyBias || true }} is true, weight toward newsy 2025 developments (product launches, standards, policy shifts, breakthroughs).\n\nSub-niche steer: If {{ $json.subniche }} is set (e.g., “B2B SaaS,” “healthtech,” “devtools,” “MarTech”), tailor topics accordingly.\n\nPersona tilt: If {{ $json.persona }} is set (e.g., “CTO,” “Product Manager,” “Founder”), angle ideas to that role’s pains and outcomes.\n\nQuality Bar (must pass before output):\n\nEach idea clearly ties to {{ $json.field || \"AI / Tech / Automation\" }} (and {{ $json.subniche }} if provided).\n\nHeadlines are distinct and specific (avoid repeating words like “future,” “revolution,” “game-changer” across ideas).\n\nZero hallucinated stats or fake product claims.\n\nAuthor identity:\nIdeas are generated under the expertise of Harsh Rokade, focused on creating impactful, viral, and professional content for LinkedIn.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -368
+      ],
+      "id": "00082450-0fc3-4deb-9158-b8530d8567ec",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        -176
+      ],
+      "id": "eb609034-127b-4066-8007-bb607adf4e6f",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "za3nBgk1k4axvWf7",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return JSON.parse(items[0].json.output);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        976,
+        -368
+      ],
+      "id": "567e7529-f607-4561-b6fc-eae4776854ec",
+      "name": "Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "03423a21-0ac9-4ed5-9090-a0a4888d6bc9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6418d18efd8fad1510aa87bc71d77dae9194b96b534ad8ff274c2143494d1e00"
+  },
+  "id": "PiZ6IemsLPaNAyLK",
+  "tags": []
+}
