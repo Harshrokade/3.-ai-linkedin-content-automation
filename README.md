@@ -27,5 +27,37 @@ The system is designed to fetch fresh content ideas, process them via AI, and st
 8. **Append row in sheet** → Saves final LinkedIn-ready posts.  
 
 ---
+How to Use This n8n Workflow
 
+Follow these steps to import and use the workflow JSON file in n8n:
+
+Step 1: Open n8n
+
+Log in to your n8n account (either self-hosted or cloud).
+
+Step 2: Go to Workflows
+
+On the left sidebar, click Workflows.
+
+Step 3: Import Workflow
+
+At the top-right corner, click the three dots (⋮) menu.
+
+Select Import from File.
+
+Step 4: Upload JSON File
+
+Choose the JSON file you downloaded from this repository.
+
+Click Open.
+
+Step 5: Save the Workflow
+
+Once the workflow is loaded, click Save.
+
+Step 6: Run the Workflow
+
+You can now click ▶ Execute Workflow to test it.
+
+✅ That’s it! You have successfully imported and can now use the workflow.
 
